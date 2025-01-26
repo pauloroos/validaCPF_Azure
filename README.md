@@ -58,22 +58,6 @@ bin/
 obj/
 ```
 
-#### **Remoção de Arquivos Já Rastreados**
-Caso arquivos sensíveis tenham sido adicionados ao Git, foram removidos do rastreamento com o comando:
-
-```bash
-git rm --cached local.settings.json
-```
-E, no caso de diretórios:
-```bash
-git rm --cached -r __blobstorage__
-```
-
-Após isso, foi feito um commit para aplicar as mudanças:
-```bash
-git commit -m "Removendo arquivos sensíveis do rastreamento"
-```
-
 ---
 
 ### **3. Publicação da Azure Function**
