@@ -1,116 +1,143 @@
 # Azure Functions - Validação de CPF com Azure Functions
 
-Este projeto foi desenvolvido para validar CPFs utilizando Azure Functions. Ele utiliza o emulador Azurite para simular os serviços de armazenamento do Azure Blob, Queue e Table localmente, garantindo uma experiência de desenvolvimento integrada e segura.
+Este repositório apresenta uma aplicação desenvolvida para validar CPFs utilizando Azure Functions. O projeto faz uso do Azurite, que emula localmente os serviços de armazenamento do Azure (Blob, Queue e Table), permitindo um ambiente de desenvolvimento controlado e seguro.
+
+## Índice
+
+- [Introdução](#introdução)
+- [Configuração do Ambiente](#configuração-do-ambiente)
+- [Estrutura do Projeto](#estrutura-do-projeto)
+- [Testando com o Postman](#testando-com-o-postman)
+- [Boas Práticas Adotadas](#boas-práticas-adotadas)
+- [Referências](#referências)
 
 ---
 
-## **Passos Realizados**
+## Introdução
 
-### **1. Configuração do Ambiente Local**
-
-#### **Instalação do Azurite**
-Utilizamos o Azurite para simular os serviços de armazenamento do Azure Blob, Queue e Table localmente.
-
-Comando para instalação:
-```bash
-npm install -g azurite
-```
-Comando para iniciar o Azurite:
-```bash
-azurite
-```
-> Certifique-se de que o Azurite esteja em execução enquanto você desenvolve ou publica a função.
-
-#### **Configuração do Arquivo `local.settings.json`**
-O arquivo `local.settings.json` foi configurado para usar o Azurite localmente:
-
-```json
-{
-  "IsEncrypted": false,
-  "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
-  }
-}
-```
-Este arquivo não deve ser enviado ao repositório, pois pode conter informações sensíveis.
+Este projeto tem como objetivo implementar e validar CPFs de forma prática e eficiente utilizando Azure Functions. A configuração local do Azurite garante que você possa simular o ambiente de produção em sua máquina.
 
 ---
 
-### **2. Proteção de Informações Sensíveis**
+## Configuração do Ambiente
 
-#### **Atualização do `.gitignore`**
-Foi atualizado o arquivo `.gitignore` para ignorar arquivos sensíveis, como `local.settings.json`, e diretórios gerados pelo Azurite:
+1. **Instale o Azurite**:
+   ```bash
+   npm install -g azurite
+   azurite
+   ```
 
-```gitignore
-# Azure Functions
-local.settings.json
+2. **Configure o arquivo `local.settings.json`**:
+   ```json
+   {
+     "IsEncrypted": false,
+     "Values": {
+       "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+       "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+     }
+   }
+   ```
 
-# Azurite database files
-__blobstorage__/
-_azurite_db_*
+   > **Nota**: Não inclua este arquivo no controle de versão para evitar expor informações sensíveis.
 
-# VS Code settings (opcional)
-.vscode/
+3. **Atualize o `.gitignore`**:
+   ```gitignore
+   # Azure Functions
+   local.settings.json
 
-# Build outputs
-bin/
-obj/
-```
+   # Azurite database files
+   __blobstorage__/
+   _azurite_db_*
+
+   # VS Code settings (opcional)
+   .vscode/
+
+   # Build outputs
+   bin/
+   obj/
+   ```
+
+4. **Remova arquivos já rastreados (se necessário)**:
+   ```bash
+   git rm --cached local.settings.json
+   git rm --cached -r __blobstorage__
+   git commit -m "Removendo arquivos sensíveis do rastreamento"
+   ```
 
 ---
 
-### **3. Publicação da Azure Function**
+## Estrutura do Projeto
 
-#### **Login no Azure CLI**
-Autenticamos no Azure CLI antes de publicar a função:
-```bash
-az login
+O projeto está organizado da seguinte forma:
+
 ```
-Selecionamos a assinatura correta (caso houvesse mais de uma):
-```bash
-az account set --subscription "<Nome ou ID da assinatura>"
-```
-
-#### **Publicação da Função**
-Com o ambiente configurado e o login realizado, publicamos a Azure Function com o comando:
-```bash
-func azure functionapp publish <nome_da_function>
-```
-
----
-
-### **4. Estrutura Final do Projeto**
-
-A estrutura final do projeto contém os seguintes arquivos e diretórios principais:
-```
-AzureFunctionsLearn
-├── httpValidateCpf
+AzureFunctionsLearn/
+├── validarCPF/
 │   ├── host.json
 │   ├── local.settings.json (ignorado pelo Git)
-│   ├── validatecpf.cs
-│   ├── __blobstorage__ (ignorado pelo Git)
-│   └── httpValidateCpf.csproj
+│   ├── validarcpf.cs
+│   ├── __blobstorage__/ (ignorado pelo Git)
+│   └── validarCPF.csproj
 └── .gitignore
 ```
 
 ---
 
-## **Boas Práticas Adotadas**
+## Testando com o Postman
 
-1. **Proteção de informações sensíveis**:
-   - `local.settings.json` foi ignorado pelo Git.
-   - O diretório `__blobstorage__` também foi configurado para não ser rastreado.
+Você pode validar CPFs através da Azure Function utilizando o Postman. Siga os passos abaixo:
 
-2. **Uso de variáveis de ambiente**:
-   - É recomendável utilizar variáveis de ambiente para credenciais e chaves sensíveis em produção.
+1. **Configurar a Requisição**:
+   - Método: `POST`
+   - URL: `http://localhost:<porta_da_function>/api/validarcpf`
+   - Corpo (JSON):
+     ```json
+     {
+       "cpf": "12345678909"
+     }
+     ```
 
-3. **Publicação segura**:
-   - Antes da publicação, validamos a estrutura do projeto e garantimos que nenhum dado sensível fosse enviado ao Azure.
+2. **Adicionar Chave de Acesso (se aplicável)**:
+   Caso a função exija autenticação, inclua a chave no parâmetro `code` da URL ou utilize o cabeçalho `x-functions-key`.
+
+3. **Enviar a Requisição**:
+   - Clique em "Enviar" no Postman e confira a resposta.
+
+### Exemplos de Respostas
+
+- **CPF Válido**:
+  ```json
+  {
+    "status": "success",
+    "message": "O {cpf} é válido e pode ser utilizado!"
+  }
+  ```
+
+- **CPF Inválido**:
+  ```json
+  {
+    "status": "error",
+    "message": "CPF INVÁLIDO!!!"
+  }
+  ```
 
 ---
 
-### **Referências**
-- [Documentação do Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/)
-- [Configurando o Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)
+## Boas Práticas Adotadas
 
+1. **Proteção de Informações Sensíveis**:
+   - O arquivo `local.settings.json` e os diretórios do Azurite foram configurados para serem ignorados no Git.
+
+2. **Uso de Variáveis de Ambiente**:
+   - Em produção, dados confidenciais devem ser armazenados como variáveis de ambiente.
+
+3. **Validação Pré-Publicação**:
+   - A estrutura do projeto foi revisada para garantir que informações sensíveis não sejam publicadas.
+
+---
+
+## Referências
+
+- [Documentação do Azure Functions](https://learn.microsoft.com/en-us/azure/azure-functions/)
+- [Postman - Ferramenta para Testes de API](https://www.postman.com/)
+- [Configurando o Azurite](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite)

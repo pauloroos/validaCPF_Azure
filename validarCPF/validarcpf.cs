@@ -8,16 +8,16 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
-namespace httpValidateCpf;
+namespace validarCPF;
 
-public static class validatecpf
+public static class validarcpf
 {
-    [FunctionName("validatecpf")]
+    [FunctionName("validarcpf")]
     public static async Task<IActionResult> Run(
         [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
         ILogger log)
     {
-        log.LogInformation("Initied validation to CPF.");
+        log.LogInformation("Iniciando a validação do CPF.");
 
 
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
@@ -25,22 +25,22 @@ public static class validatecpf
 
         if (data == null)
         {
-            return new OkObjectResult("Please pass a cpf on the request body!");
+            return new OkObjectResult("Por favor, informe um CPF!");
         }
         string cpf = data?.cpf;
 
-        if (!ValidateCPF(cpf))
+        if (!ValidarCPF(cpf))
         {
-            return new OkObjectResult("Invalid CPF!");
+            return new OkObjectResult("CPF INVÁLIDO!!!");
         }
 
-        var responseMessage = $"O {cpf} é válido, e não consta na base de dados de fraudes, está limpo na Receita Federal.";
+        var responseMessage = $"O {cpf} é válido e pode ser utilizado!";
 
         return new OkObjectResult(responseMessage);
     }
 
 
-    public static bool ValidateCPF(string CPF)
+    public static bool ValidarCPF(string CPF)
     {
         if (string.IsNullOrEmpty(CPF))
             return false;
